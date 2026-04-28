@@ -1,0 +1,844 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: Bakery operations API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+  - name: settings
+  - name: stores
+  - name: ops
+  - name: cash
+  - name: expenses
+  - name: dashboard
+  - name: recipes
+  - name: restocks
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /settings:
+    get:
+      operationId: getSettings
+      tags: [settings]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+    post:
+      operationId: createSettingsVersion
+      tags: [settings]
+      summary: Create a new settings version effective on a given date
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSettingsVersionBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+
+  /stores:
+    get:
+      operationId: listStores
+      tags: [stores]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Store"
+    post:
+      operationId: createStore
+      tags: [stores]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateStoreBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Store"
+  /stores/{id}:
+    patch:
+      operationId: updateStore
+      tags: [stores]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateStoreBody"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Store"
+    delete:
+      operationId: deleteStore
+      tags: [stores]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /stores/{id}/history:
+    get:
+      operationId: getStoreHistory
+      tags: [stores]
+      summary: Aggregated metrics + transaction list for a single store, optionally filtered by date range
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: from
+          in: query
+          required: false
+          schema: { type: string, format: date }
+        - name: to
+          in: query
+          required: false
+          schema: { type: string, format: date }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoreHistory"
+
+  /ops:
+    get:
+      operationId: listOps
+      tags: [ops]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OpsEntry"
+    post:
+      operationId: createOps
+      tags: [ops]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOpsBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpsEntry"
+  /ops/{id}:
+    patch:
+      operationId: updateOps
+      tags: [ops]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateOpsBody"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpsEntry"
+    delete:
+      operationId: deleteOps
+      tags: [ops]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /cash:
+    get:
+      operationId: listCash
+      tags: [cash]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CashEntry"
+    post:
+      operationId: createCash
+      tags: [cash]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCashBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CashEntry"
+  /cash/{id}:
+    patch:
+      operationId: updateCash
+      tags: [cash]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCashBody"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CashEntry"
+    delete:
+      operationId: deleteCash
+      tags: [cash]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /expenses:
+    get:
+      operationId: listExpenses
+      tags: [expenses]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Expense"
+    post:
+      operationId: createExpense
+      tags: [expenses]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateExpenseBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Expense"
+  /expenses/{id}:
+    delete:
+      operationId: deleteExpense
+      tags: [expenses]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /recipes:
+    get:
+      operationId: listRecipes
+      tags: [recipes]
+      summary: List all recipe versions, newest first
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Recipe"
+    post:
+      operationId: createRecipe
+      tags: [recipes]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRecipeBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Recipe"
+
+  /restocks:
+    get:
+      operationId: listRestocks
+      tags: [restocks]
+      summary: List all inventory restocks, newest first
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Restock"
+    post:
+      operationId: createRestock
+      tags: [restocks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRestockBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Restock"
+  /restocks/{id}:
+    delete:
+      operationId: deleteRestock
+      tags: [restocks]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /critical-levels:
+    get:
+      operationId: listCriticalLevels
+      tags: [restocks]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListCriticalLevelsResponse"
+    put:
+      operationId: replaceCriticalLevels
+      tags: [restocks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReplaceCriticalLevelsBody"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListCriticalLevelsResponse"
+
+  /dashboard:
+    get:
+      operationId: getDashboard
+      tags: [dashboard]
+      summary: Aggregated totals for the dashboard
+      parameters:
+        - in: query
+          name: from
+          required: false
+          schema: { type: string, format: date }
+          description: Inclusive start date (YYYY-MM-DD) for period-based metrics
+        - in: query
+          name: to
+          required: false
+          schema: { type: string, format: date }
+          description: Inclusive end date (YYYY-MM-DD) for period-based metrics
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Dashboard"
+
+  /analytics:
+    get:
+      operationId: getAnalytics
+      tags: [dashboard]
+      summary: Executive analytics — month-over-month trends and breakdowns
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Analytics"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status: { type: string }
+      required: [status]
+
+    RecipeIngredient:
+      type: object
+      properties:
+        name: { type: string, minLength: 1 }
+        qtyKg: { type: number, minimum: 0 }
+      required: [name, qtyKg]
+
+    Settings:
+      type: object
+      properties:
+        pricePerPack: { type: number }
+        loavesPerInputUnit: { type: integer }
+        loavesPerPack: { type: integer }
+        packsPerInputUnit: { type: integer }
+        marketingLoavesPerPack: { type: integer }
+        marketingPacksPerInputUnit: { type: integer }
+        effectiveDate: { type: string, format: date }
+      required: [pricePerPack, loavesPerInputUnit, loavesPerPack, packsPerInputUnit, marketingLoavesPerPack, marketingPacksPerInputUnit, effectiveDate]
+    CreateSettingsVersionBody:
+      type: object
+      properties:
+        effectiveDate: { type: string, format: date }
+        pricePerPack: { type: number, minimum: 0 }
+        loavesPerPack: { type: integer, minimum: 1 }
+        packsPerInputUnit: { type: integer, minimum: 1 }
+        marketingLoavesPerPack: { type: integer, minimum: 1 }
+        marketingPacksPerInputUnit: { type: integer, minimum: 1 }
+      required: [effectiveDate, pricePerPack, loavesPerPack, packsPerInputUnit, marketingLoavesPerPack, marketingPacksPerInputUnit]
+
+    Recipe:
+      type: object
+      properties:
+        id: { type: integer }
+        effectiveDate: { type: string, format: date }
+        ingredients:
+          type: array
+          items: { $ref: "#/components/schemas/RecipeIngredient" }
+        notes: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+      required: [id, effectiveDate, ingredients, createdAt]
+    CreateRecipeBody:
+      type: object
+      properties:
+        effectiveDate: { type: string, format: date }
+        ingredients:
+          type: array
+          minItems: 1
+          items: { $ref: "#/components/schemas/RecipeIngredient" }
+        notes: { type: string, nullable: true }
+      required: [effectiveDate, ingredients]
+
+    CriticalLevel:
+      type: object
+      properties:
+        name: { type: string, minLength: 1 }
+        thresholdKg: { type: number, minimum: 0 }
+      required: [name, thresholdKg]
+    ListCriticalLevelsResponse:
+      type: array
+      items: { $ref: "#/components/schemas/CriticalLevel" }
+    ReplaceCriticalLevelsBody:
+      type: object
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/CriticalLevel" }
+      required: [items]
+
+    RestockItem:
+      type: object
+      properties:
+        name: { type: string, minLength: 1 }
+        qtyKg: { type: number }
+        price: { type: number, nullable: true, description: "Total price paid for this line item." }
+      required: [name, qtyKg]
+    Restock:
+      type: object
+      properties:
+        id: { type: integer }
+        date: { type: string, format: date }
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/RestockItem" }
+        notes: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+      required: [id, date, items, createdAt]
+    CreateRestockBody:
+      type: object
+      properties:
+        date: { type: string, format: date }
+        items:
+          type: array
+          minItems: 1
+          items: { $ref: "#/components/schemas/RestockItem" }
+        notes: { type: string, nullable: true }
+      required: [date, items]
+
+    Store:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        address: { type: string, nullable: true }
+        contact: { type: string, nullable: true }
+        phone: { type: string, nullable: true }
+        history: { type: string, nullable: true }
+      required: [id, name]
+    CreateStoreBody:
+      type: object
+      properties:
+        name: { type: string, minLength: 1 }
+        address: { type: string, nullable: true }
+        contact: { type: string, nullable: true }
+        phone: { type: string, nullable: true }
+        history: { type: string, nullable: true }
+      required: [name]
+    UpdateStoreBody:
+      type: object
+      properties:
+        name: { type: string, minLength: 1 }
+        address: { type: string, nullable: true }
+        contact: { type: string, nullable: true }
+        phone: { type: string, nullable: true }
+        history: { type: string, nullable: true }
+
+    OpsEntry:
+      type: object
+      properties:
+        id: { type: integer }
+        date: { type: string, format: date }
+        storeId: { type: integer, nullable: true }
+        storeName: { type: string, nullable: true }
+        batchUnits: { type: number, nullable: true }
+        packType:
+          type: string
+          enum: [regular, marketing]
+          nullable: true
+        deliveredPacks: { type: integer, nullable: true }
+        returnedPacks: { type: integer, nullable: true }
+        samples: { type: integer, nullable: true }
+        paid: { type: number, nullable: true }
+        note: { type: string, nullable: true }
+        kind:
+          type: string
+          enum: [production, delivery]
+        createdAt: { type: string, format: date-time }
+      required: [id, date, kind]
+    CreateOpsBody:
+      type: object
+      properties:
+        date: { type: string, format: date }
+        kind:
+          type: string
+          enum: [production, delivery]
+        storeId: { type: integer, nullable: true }
+        batchUnits: { type: number, nullable: true }
+        packType:
+          type: string
+          enum: [regular, marketing]
+          nullable: true
+        deliveredPacks: { type: integer, nullable: true }
+        returnedPacks: { type: integer, nullable: true }
+        samples: { type: integer, nullable: true }
+        paid: { type: number, nullable: true }
+        note: { type: string, nullable: true }
+      required: [date, kind]
+    UpdateOpsBody:
+      type: object
+      properties:
+        date: { type: string, format: date }
+        storeId: { type: integer, nullable: true }
+        batchUnits: { type: number, nullable: true }
+        packType:
+          type: string
+          enum: [regular, marketing]
+          nullable: true
+        deliveredPacks: { type: integer, nullable: true }
+        returnedPacks: { type: integer, nullable: true }
+        samples: { type: integer, nullable: true }
+        paid: { type: number, nullable: true }
+        note: { type: string, nullable: true }
+
+    CashEntry:
+      type: object
+      properties:
+        id: { type: integer }
+        date: { type: string, format: date }
+        storeId: { type: integer }
+        storeName: { type: string, nullable: true }
+        amount: { type: number }
+        note: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+      required: [id, date, storeId, amount]
+    CreateCashBody:
+      type: object
+      properties:
+        date: { type: string, format: date }
+        storeId: { type: integer }
+        amount: { type: number, minimum: 0 }
+        note: { type: string, nullable: true }
+      required: [date, storeId, amount]
+    UpdateCashBody:
+      type: object
+      properties:
+        date: { type: string, format: date }
+        storeId: { type: integer }
+        amount: { type: number, minimum: 0 }
+        note: { type: string, nullable: true }
+
+    Expense:
+      type: object
+      properties:
+        id: { type: integer }
+        date: { type: string, format: date }
+        category: { type: string }
+        amount: { type: number }
+        note: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+      required: [id, date, category, amount]
+    CreateExpenseBody:
+      type: object
+      properties:
+        date: { type: string, format: date }
+        category: { type: string, minLength: 1 }
+        amount: { type: number, minimum: 0 }
+        note: { type: string, nullable: true }
+      required: [date, category, amount]
+
+    StoreHistoryTransaction:
+      type: object
+      properties:
+        id: { type: string }
+        date: { type: string, format: date }
+        type:
+          type: string
+          enum: [delivery, payment]
+        packs: { type: integer, nullable: true }
+        returned: { type: integer, nullable: true }
+        samples: { type: integer, nullable: true }
+        amount: { type: number }
+        paid: { type: number }
+        outstanding: { type: number }
+        balanceAfter: { type: number }
+        note: { type: string, nullable: true }
+      required: [id, date, type, amount, paid, outstanding, balanceAfter]
+
+    StoreHistorySummary:
+      type: object
+      properties:
+        totalOrders: { type: integer }
+        packsDelivered: { type: integer }
+        samples: { type: integer }
+        revenue: { type: number }
+        paidAtDelivery: { type: number }
+        paidLater: { type: number }
+        collected: { type: number }
+        outstandingInPeriod: { type: number }
+        outstandingTotal: { type: number }
+      required: [totalOrders, packsDelivered, samples, revenue, paidAtDelivery, paidLater, collected, outstandingInPeriod, outstandingTotal]
+
+    StoreHistory:
+      type: object
+      properties:
+        store: { $ref: "#/components/schemas/Store" }
+        from: { type: string, format: date, nullable: true }
+        to: { type: string, format: date, nullable: true }
+        summary: { $ref: "#/components/schemas/StoreHistorySummary" }
+        transactions:
+          type: array
+          items: { $ref: "#/components/schemas/StoreHistoryTransaction" }
+      required: [store, summary, transactions]
+
+    StoreSummary:
+      type: object
+      properties:
+        storeId: { type: integer }
+        storeName: { type: string }
+        packsDelivered: { type: integer }
+        samples: { type: integer }
+        revenue: { type: number }
+        collected: { type: number }
+        outstanding: { type: number }
+      required: [storeId, storeName, packsDelivered, samples, revenue, collected, outstanding]
+
+    Dashboard:
+      type: object
+      properties:
+        packsMade: { type: integer }
+        packsDelivered: { type: integer }
+        regularPacksDelivered: { type: integer }
+        marketingPacksDelivered: { type: integer }
+        packsSamples: { type: integer }
+        packsInStock: { type: integer }
+        marketingPacksMade: { type: integer }
+        marketingPacksInStock: { type: integer }
+        revenue: { type: number }
+        collected: { type: number }
+        outstanding: { type: number }
+        moneySpent: { type: number }
+        byStore:
+          type: array
+          items:
+            $ref: "#/components/schemas/StoreSummary"
+        inventoryLevels:
+          type: array
+          items:
+            type: object
+            properties:
+              name: { type: string }
+              restocked: { type: number }
+              used: { type: number }
+              current: { type: number }
+              threshold: { type: number, nullable: true }
+            required: [name, restocked, used, current]
+      required: [packsMade, packsDelivered, packsSamples, packsInStock, marketingPacksMade, marketingPacksInStock, revenue, collected, outstanding, byStore, inventoryLevels]
+
+    Analytics:
+      type: object
+      properties:
+        monthly:
+          type: array
+          items:
+            type: object
+            properties:
+              month: { type: string, description: "YYYY-MM" }
+              revenue: { type: number }
+              collected: { type: number }
+              expenses: { type: number }
+              restockCost: { type: number }
+              netCash: { type: number }
+              packsDelivered: { type: integer }
+              deliveriesCount: { type: integer }
+              newStores: { type: integer }
+            required: [month, revenue, collected, expenses, restockCost, netCash, packsDelivered, deliveriesCount, newStores]
+        expensesByCategory:
+          type: array
+          items:
+            type: object
+            properties:
+              category: { type: string }
+              amount: { type: number }
+            required: [category, amount]
+        topStoresByRevenue:
+          type: array
+          items:
+            type: object
+            properties:
+              storeId: { type: integer }
+              storeName: { type: string }
+              revenue: { type: number }
+              packsDelivered: { type: integer }
+            required: [storeId, storeName, revenue, packsDelivered]
+        outstandingByStore:
+          type: array
+          items:
+            type: object
+            properties:
+              storeId: { type: integer }
+              storeName: { type: string }
+              outstanding: { type: number }
+            required: [storeId, storeName, outstanding]
+        kpis:
+          type: object
+          properties:
+            totalStores: { type: integer }
+            activeStoresLast30Days: { type: integer }
+            avgRevenuePerStore: { type: number }
+            avgPacksPerDelivery: { type: number }
+            grossMargin: { type: number, nullable: true, description: "(revenue - restockCost - expenses) / revenue" }
+          required: [totalStores, activeStoresLast30Days, avgRevenuePerStore, avgPacksPerDelivery]
+      required: [monthly, expensesByCategory, topStoresByRevenue, outstandingByStore, kpis]
