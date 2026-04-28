@@ -20,4 +20,3 @@
 export * from "./bakery";
 export * from "./todos";
 
-router.use(todosRouter);
