@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AnalyticsSection } from "@/components/analytics-section";
 import { TodoList } from "@/components/todo-list";
+import { PackagingSection } from "@/components/packaging-section";
 
 type RangeKey = "today" | "week" | "month" | "custom" | "all";
 
@@ -356,6 +357,7 @@ export function DashboardPage() {
       </Card>
 
       <AnalyticsSection />
+      <PackagingSection />
       <TodoList />
 
       <div className="grid gap-4 md:grid-cols-2">
